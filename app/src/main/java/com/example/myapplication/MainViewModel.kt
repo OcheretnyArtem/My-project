@@ -44,8 +44,7 @@ class MainViewModel(private val dao: BootRecordDao) : ViewModel(), MainViewModel
     private fun List<BootRecord>.toDisplayedText(): String = if (isEmpty()) {
         "No boots detected" /*TODO Move to String resources*/
     } else {
-        val dateFormat = SimpleDateFormat("DD/MM/YYYY HH:MM:SS", Locale.getDefault())
-        val events = map { dateFormat.format(it.bootTime) }
+        val events = map { it.bootTime.format() }
         events.joinToString("\n")
     }
 

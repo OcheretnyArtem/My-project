@@ -12,11 +12,10 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.myapplication.R
 import com.example.myapplication.data.BootRecordDao
-import kotlinx.coroutines.flow.first
+import com.example.myapplication.format
+import kotlinx.coroutines.flow.last
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class NotificationWorker(
     appContext: Context,
@@ -39,32 +38,27 @@ class NotificationWorker(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
-                "Special Notifications",
+                "App Boots Notifications",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
             notificationManagerCompat.createNotificationChannel(channel)
         }
-
-        val notificationBody = getNotificationBody()
-
+        val notificationBody = notificationBody()
         val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("Special Notification")
+            .setContentTitle("App Boots")
             .setContentText(notificationBody)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
-
+        /*TODO do permission check before */
         notificationManagerCompat.notify(notificationId, notification)
     }
 
-    private suspend fun getNotificationBody(): String {
-        val bootEvents = bootEventDao.getAllBootRecords().first()
+    private suspend fun notificationBody(): String {
+        val bootEvents = bootEventDao.getAllBootRecords().last()
         return when {
             bootEvents.isEmpty() -> "No boots detected"
-            bootEvents.size == 1 -> {
-                val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
-                "The boot was detected = ${dateFormat.format(bootEvents[0].bootTime)}"
-            }
+            bootEvents.size == 1 -> "The boot was detected = ${bootEvents.first().bootTime.format()}"
             else -> {
                 val lastBoot = bootEvents[bootEvents.size - 1].bootTime
                 val preLastBoot = bootEvents[bootEvents.size - 2].bootTime
