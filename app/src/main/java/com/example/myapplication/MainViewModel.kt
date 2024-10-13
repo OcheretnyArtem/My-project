@@ -1,8 +1,15 @@
 package com.example.myapplication
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.myapplication.data.BootRecord
+import com.example.myapplication.data.BootRecordDao
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 interface MainViewModelContract {
 
@@ -11,10 +18,35 @@ interface MainViewModelContract {
         val viewState: StateFlow<ViewState>
     }
 
-    data class ViewState(val title: String)
+    data class ViewState(val displayedText: String)
 }
 
-class MainViewModel : ViewModel(), MainViewModelContract.ViewModel {
+class MainViewModel(private val dao: BootRecordDao) : ViewModel(), MainViewModelContract.ViewModel {
 
-    override val viewState= MutableStateFlow(MainViewModelContract.ViewState("STATE FLOW"))
+    init {
+        collectBootRecords()
+    }
+
+    override val viewState = MutableStateFlow(emptyViewState())
+
+    private fun emptyViewState(): MainViewModelContract.ViewState {
+        return MainViewModelContract.ViewState(displayedText = "No boots detected" /*TODO Move to String resources*/)
+    }
+
+    private fun collectBootRecords() {
+        viewModelScope.launch {
+            dao.getAllBootRecords().collect { bootRecords ->
+                viewState.update { it.copy(displayedText = bootRecords.toDisplayedText()) }
+            }
+        }
+    }
+
+    private fun List<BootRecord>.toDisplayedText(): String = if (isEmpty()) {
+        "No boots detected" /*TODO Move to String resources*/
+    } else {
+        val dateFormat = SimpleDateFormat("DD/MM/YYYY HH:MM:SS", Locale.getDefault())
+        val events = map { dateFormat.format(it.bootTime) }
+        events.joinToString("\n")
+    }
+
 }

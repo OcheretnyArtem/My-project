@@ -23,7 +23,6 @@ class MyApp : Application() {
     }
 
     private fun scheduleNotificationWorker() {
-        println("MESSAFGE")
         val workRequest = PeriodicWorkRequestBuilder<NotificationWorker>(15, TimeUnit.MINUTES).build()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "NotificationWorker",
