@@ -11,14 +11,14 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class BootReceiver : BroadcastReceiver(), KoinComponent {
+class BootCompletedReceiver : BroadcastReceiver(), KoinComponent {
 
-    private val bootEventDao: BootRecordDao by inject()
+    private val bootRecordDao: BootRecordDao by inject()
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
             CoroutineScope(Dispatchers.IO).launch {
-                bootEventDao.insert(BootRecord(bootTime = System.currentTimeMillis()))
+                bootRecordDao.insert(BootRecord(bootTime = System.currentTimeMillis()))
             }
         }
     }
