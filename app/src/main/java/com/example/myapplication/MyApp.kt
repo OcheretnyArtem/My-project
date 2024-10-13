@@ -1,9 +1,15 @@
 package com.example.myapplication
 
 import android.app.Application
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.example.bootcounter.NotificationWorker
+import com.example.myapplication.di.appModule
 import com.example.myapplication.di.viewModelsModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
+import java.util.concurrent.TimeUnit
 
 class MyApp : Application() {
 
@@ -11,7 +17,18 @@ class MyApp : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@MyApp)
-            modules(viewModelsModule)
+            scheduleNotificationWorker()
+            modules(viewModelsModule, appModule)
         }
+    }
+
+    private fun scheduleNotificationWorker() {
+        println("MESSAFGE")
+        val workRequest = PeriodicWorkRequestBuilder<NotificationWorker>(15, TimeUnit.MINUTES).build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "NotificationWorker",
+            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+            workRequest
+        )
     }
 }
