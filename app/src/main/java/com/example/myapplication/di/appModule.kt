@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import androidx.room.Room
 import androidx.work.WorkerParameters
-import com.example.bootcounter.NotificationWorker
+import com.example.myapplication.NotificationWorker
 import com.example.myapplication.data.BootRecordsDatabase
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module

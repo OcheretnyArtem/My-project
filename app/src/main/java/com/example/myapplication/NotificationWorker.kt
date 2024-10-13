@@ -1,18 +1,16 @@
-// NotificationWorker.kt
-package com.example.bootcounter
+package com.example.myapplication
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.example.myapplication.R
 import com.example.myapplication.data.BootRecordDao
-import com.example.myapplication.format
 import kotlinx.coroutines.flow.last
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -30,29 +28,28 @@ class NotificationWorker(
         return Result.success()
     }
 
-    @SuppressLint("MissingPermission")
     private suspend fun showNotification() {
-        val channelId = "special_channel"
-        val notificationId = 1
+        createNotificationChannel()
+        if (notificationManagerCompat.areNotificationsEnabled()) {
+            notificationManagerCompat.notify(NOTIFICATION_ID, createNotification())
+        } else {
+            Log.w("NotificationWorker", "Notifications are not enabled")
+        }
+    }
 
+    private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "App Boots Notifications",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
+            val channel = NotificationChannel(CHANNEL_ID, "App Boots Notifications", NotificationManager.IMPORTANCE_DEFAULT)
             notificationManagerCompat.createNotificationChannel(channel)
         }
-        val notificationBody = notificationBody()
-        val notification = NotificationCompat.Builder(applicationContext, channelId)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("App Boots")
-            .setContentText(notificationBody)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .build()
-        /*TODO do permission check before */
-        notificationManagerCompat.notify(notificationId, notification)
     }
+
+    private suspend fun createNotification() = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+        .setSmallIcon(R.drawable.ic_launcher_foreground)
+        .setContentTitle("App Boots")
+        .setContentText(notificationBody())
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .build()
 
     private suspend fun notificationBody(): String {
         val bootEvents = bootEventDao.getAllBootRecords().last()
@@ -66,5 +63,10 @@ class NotificationWorker(
                 "Last boots time delta = ${timeDelta / 1000} seconds"
             }
         }
+    }
+
+    companion object {
+        private const val CHANNEL_ID = "app_boots_notification_channel"
+        private const val NOTIFICATION_ID = 1
     }
 }

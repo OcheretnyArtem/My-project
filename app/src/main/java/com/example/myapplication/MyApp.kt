@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.example.bootcounter.NotificationWorker
 import com.example.myapplication.di.appModule
 import com.example.myapplication.di.viewModelsModule
 import org.koin.android.ext.koin.androidContext
@@ -17,9 +16,9 @@ class MyApp : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@MyApp)
-            scheduleNotificationWorker()
             modules(viewModelsModule, appModule)
         }
+        scheduleNotificationWorker()
     }
 
     private fun scheduleNotificationWorker() {
