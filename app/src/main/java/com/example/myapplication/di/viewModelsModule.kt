@@ -1,6 +1,6 @@
 package com.example.myapplication.di
 
-import com.example.myapplication.MainViewModel
+import com.example.myapplication.screens.main.MainViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 

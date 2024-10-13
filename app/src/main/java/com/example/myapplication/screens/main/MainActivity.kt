@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.screens.main
 
 import android.Manifest
 import android.content.pm.PackageManager

@@ -1,15 +1,14 @@
-package com.example.myapplication
+package com.example.myapplication.screens.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.BootRecord
 import com.example.myapplication.data.BootRecordDao
+import com.example.myapplication.format
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 interface MainViewModelContract {
 
